@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Sciverse Press",
+    "slug": "sciverse-press",
+    "version": "1.2.0",
+    "orientation": "portrait",
+    "scheme": "sciverse-press",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#0c0c10",
+      "image": "./assets/icon.png",
+      "resizeMode": "contain"
+    },
+    "android": {
+      "package": "com.sciverse.press",
+      "versionCode": 4,
+      "usesCleartextTraffic": true,
+      "permissions": ["INTERNET"],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0c0c10"
+      }
+    },
+    "runtimeVersion": "1.1.0",
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://updates.sciverse.press/manifest"
+    },
+    "plugins": ["expo-secure-store", "expo-updates"],
+    "extra": {}
+  }
+}

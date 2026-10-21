@@ -1,0 +1,29 @@
+{
+  "name": "desktop",
+  "version": "1.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "tsc -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@sciverse/shared": "file:../shared",
+    "framer-motion": "^14.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "recharts": "^2.13.0",
+    "@tauri-apps/plugin-updater": "^2.14.0",
+    "@tauri-apps/plugin-process": "^2.4.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.3",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.8"
+  }
+}
