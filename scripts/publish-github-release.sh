@@ -61,6 +61,9 @@ fi
 # Remove any asset with the same name (so re-runs replace rather than fail).
 UPLOAD_URL=$(curl -s "${AUTH[@]}" "$API/releases/$RELEASE_ID" | node -e "
 let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).upload_url)}catch{console.log('')}})")
+# The upload_url carries a URI template suffix — strip it before appending ?name=
+UPLOAD_BASE="${UPLOAD_URL%\{*\}}"
+[ -n "$UPLOAD_BASE" ] || { echo "!! Could not read the upload URL."; exit 1; }
 
 echo
 echo "==> Uploading assets"
@@ -78,11 +81,15 @@ let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{
     echo "    replacing $name"
     curl -s -o /dev/null -X DELETE "${AUTH[@]}" "$API/releases/assets/$existing"
   fi
-  code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+  # GitHub's asset endpoint stores the request body verbatim — it does not
+  # parse multipart forms here. Send the raw bytes and name the asset with
+  # the ?name= query parameter, otherwise the multipart envelope ends up
+  # inside the published file.
+  code=$(curl -s --max-time 900 -o /dev/null -w "%{http_code}" -X POST \
     -H "Authorization: Bearer $TOKEN" \
     -H "Content-Type: application/octet-stream" \
     --data-binary "@$f" \
-    "${UPLOAD_URL%%\?*}/assets?name=$name")
+    "$UPLOAD_BASE?name=$name")
   if [ "$code" = "201" ]; then
     echo "    + $name"
   else
