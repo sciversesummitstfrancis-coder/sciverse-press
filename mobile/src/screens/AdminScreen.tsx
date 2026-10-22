@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Alert, FlatList, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { FadeIn } from '../anim';
 import { api, currentUserInfo } from '../api';
-import { Card, Empty, ErrorBox, Loading, palette, s } from '../ui';
+import { Card, Empty, ErrorBox, Eyebrow, GlassBackground, GradientButton, GhostButton, Loading, palette, s } from '../ui';
 
 const ROLES = ['press', 'eb', 'chair', 'coordinator', 'admin', 'organizer'] as const;
 
@@ -57,8 +57,12 @@ export default function AdminScreen() {
     );
 
   return (
-    <View style={s.screen}>
-      <View style={s.row}>
+    <GlassBackground>
+      <View style={{ padding: 16, paddingBottom: 0 }}>
+        <Eyebrow label="Control room" />
+        <Text style={s.title}>Admin centre</Text>
+      </View>
+      <View style={[s.row, { paddingHorizontal: 16, paddingTop: 12 }]}>
         <TabButton label="Accounts" active={tab === 'accounts'} onPress={() => setTab('accounts')} />
         <TabButton label="Committees" active={tab === 'committees'} onPress={() => setTab('committees')} />
       </View>
@@ -69,7 +73,7 @@ export default function AdminScreen() {
       ) : (
         <CommitteesTab tick={tick} refresh={refresh} setMsg={setMsg} setErr={setErr} />
       )}
-    </View>
+    </GlassBackground>
   );
 }
 
@@ -168,7 +172,8 @@ function AccountsTab({
   if (loading) return <Loading />;
 
   return (
-    <ScrollView>
+    <GlassBackground>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 28 }} showsVerticalScrollIndicator={false}>
       <Card>
         <View style={s.row}>
           <Text style={s.h}>Accounts</Text>
@@ -226,9 +231,7 @@ function AccountsTab({
                 </Pressable>
               ))}
             </View>
-            <Pressable style={s.btn} onPress={create} accessibilityRole="button" accessibilityLabel="Create account">
-              <Text style={s.btnText}>Create account</Text>
-            </Pressable>
+            <GradientButton label="Create account" onPress={create} />
           </View>
         ) : null}
       </Card>
@@ -279,6 +282,7 @@ function AccountsTab({
       ))}
       {!accounts?.length ? <Empty label="No accounts found." /> : null}
     </ScrollView>
+    </GlassBackground>
   );
 }
 
@@ -358,7 +362,8 @@ function CommitteesTab({
   if (loading) return <Loading />;
 
   return (
-    <ScrollView>
+    <GlassBackground>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 28 }} showsVerticalScrollIndicator={false}>
       <Card>
         <View style={s.row}>
           <Text style={s.h}>Committees</Text>
@@ -371,9 +376,7 @@ function CommitteesTab({
             <TextInput style={s.input} placeholder="Name" value={form.name} onChangeText={(name) => setForm({ ...form, name })} accessibilityLabel="Committee name" />
             <TextInput style={s.input} placeholder="Abbreviation" value={form.abbreviation} onChangeText={(abbreviation) => setForm({ ...form, abbreviation })} accessibilityLabel="Abbreviation" />
             <TextInput style={s.input} placeholder="Venue" value={form.venue} onChangeText={(venue) => setForm({ ...form, venue })} accessibilityLabel="Venue" />
-            <Pressable style={s.btn} onPress={create} accessibilityRole="button" accessibilityLabel="Create committee">
-              <Text style={s.btnText}>Create committee</Text>
-            </Pressable>
+            <GradientButton label="Create committee" onPress={create} />
           </View>
         ) : null}
       </Card>
@@ -435,5 +438,6 @@ function CommitteesTab({
       ))}
       {!rows?.length ? <Empty label="No committees yet." /> : null}
     </ScrollView>
+    </GlassBackground>
   );
 }

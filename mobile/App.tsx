@@ -1,9 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { getToken, restoreSession, setCurrentUser } from './src/api';
-import { theme } from './src/ui';
+import { GlassBackground, palette, theme } from './src/ui';
 import ArticlesScreen from './src/screens/ArticlesScreen';
 import ActivityScreen from './src/screens/ActivityScreen';
 import AdminScreen from './src/screens/AdminScreen';
@@ -46,18 +47,32 @@ const TABS: { key: keyof RootStackParamList; label: string }[] = [
 
 function TabBar({ nav, routeName }: { nav: any; routeName: string }) {
   return (
-    <View style={st.tabbar}>
-      {TABS.map((t) => (
-        <Pressable
-          key={t.key}
-          onPress={() => nav.navigate(t.key)}
-          accessibilityRole="button"
-          accessibilityLabel={t.label}
-          style={st.tabBtn}
-        >
-          <Text style={[st.tabText, routeName === t.key && st.tabActive]}>{t.label}</Text>
-        </Pressable>
-      ))}
+    <View style={st.tabbarWrap}>
+      <BlurView
+        intensity={44}
+        tint="dark"
+        style={StyleSheet.absoluteFill}
+        experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
+      />
+      <View style={st.tabbarInner}>
+        <View style={st.tabSheen} />
+        {TABS.map((t) => {
+          const active = routeName === t.key;
+          return (
+            <Pressable
+              key={t.key}
+              onPress={() => nav.navigate(t.key)}
+              accessibilityRole="button"
+              accessibilityLabel={t.label}
+              accessibilityState={{ selected: active }}
+              style={st.tabBtn}
+            >
+              <View style={[st.tabDot, active && st.tabDotActive]} />
+              <Text style={[st.tabText, active && st.tabActive]}>{t.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
@@ -80,18 +95,27 @@ export default function App() {
 
   if (token === undefined) {
     return (
-      <View style={st.splash}>
-        <ActivityIndicator size="large" color={theme.accent} />
-        <Text style={st.splashText}>Sciverse Press</Text>
-      </View>
+      <GlassBackground>
+        <View style={st.splash}>
+          <ActivityIndicator size="large" color={theme.accent} />
+          <Text style={st.splashText}>Sciverse Press</Text>
+        </View>
+      </GlassBackground>
     );
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{ headerStyle: { backgroundColor: theme.bg }, headerTintColor: theme.ink }}
-      >
+    <GlassBackground>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: { backgroundColor: 'rgba(8,10,18,0.78)' },
+            headerTintColor: theme.ink,
+            headerShadowVisible: false,
+            headerTitleStyle: { fontWeight: '800', fontSize: 17 },
+            contentStyle: { backgroundColor: 'transparent' },
+          }}
+        >
         {token === null ? (
           <Stack.Screen name="Login" options={{ headerShown: false }}>
             {({ navigation }) => (
@@ -155,18 +179,42 @@ export default function App() {
             <Stack.Screen name="Editor" options={{ title: 'Editor' }} component={EditorScreen} />
           </>
         )}
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GlassBackground>
   );
 }
 
 const st = StyleSheet.create({
-  splash: { flex: 1, backgroundColor: theme.bg, alignItems: 'center', justifyContent: 'center', gap: 12 },
-  splashText: { color: theme.ink, fontSize: 24, fontFamily: 'serif', fontWeight: '700' },
-  tabbar: { flexDirection: 'row', backgroundColor: '#101016', borderTopColor: theme.line, borderTopWidth: 1 },
-  tabBtn: { flex: 1, paddingVertical: 16, alignItems: 'center', minHeight: 56 },
-  tabText: { color: theme.muted, fontSize: 12, fontWeight: '700' },
+  splash: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  splashText: { color: theme.ink, fontSize: 24, fontWeight: '800', letterSpacing: -0.4 },
+  tabbarWrap: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.08)',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(8,10,18,0.55)',
+  },
+  tabbarInner: { flexDirection: 'row', alignItems: 'center' },
+  tabSheen: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+  },
+  tabBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', minHeight: 56, justifyContent: 'center', gap: 5 },
+  tabDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.18)' },
+  tabDotActive: { width: 18, backgroundColor: theme.accent },
+  tabText: { color: theme.muted, fontSize: 10.5, fontWeight: '800', letterSpacing: 0.3 },
   tabActive: { color: theme.accent },
-  compose: { backgroundColor: theme.accent, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 },
-  composeText: { color: '#111', fontWeight: '800' },
+  compose: {
+    backgroundColor: 'rgba(56,225,255,0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(56,225,255,0.45)',
+    borderRadius: 999,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+  },
+  composeText: { color: theme.accent, fontWeight: '800', fontSize: 13 },
 });

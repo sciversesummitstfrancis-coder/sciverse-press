@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { api, loadDrafts, syncDrafts, upsertDraft, type Draft } from '../api';
-import { Card, s, theme } from '../ui';
+import { Card, Eyebrow, GlassBackground, GlassPanel, GradientButton, GhostButton, s, theme } from '../ui';
 
 function nid() {
   return `local-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
@@ -80,23 +80,42 @@ export default function EditorScreen({ route, navigation }: any) {
   }
 
   return (
-    <ScrollView style={s.screen}>
-      <Text style={s.title}>Editor</Text>
-      {conflict ? (
-        <Card><Text style={{ color: theme.red }}>Server version was newer; local edits were replaced.</Text></Card>
-      ) : null}
-      <TextInput style={s.input} placeholder="Headline" placeholderTextColor={theme.muted}
-        value={title}
-        onChangeText={(t) => { setTitle(t); queueAutosave(t, body); }} />
-      <TextInput style={s.input} placeholder="Write the story…" placeholderTextColor={theme.muted}
-        value={body} multiline onChangeText={(b) => { setBody(b); queueAutosave(title, b); }} />
-      <Text style={s.muted}>{status}</Text>
-      <Pressable style={s.btn} onPress={sync} accessibilityRole="button" accessibilityLabel="Sync now">
-        <Text style={s.btnText}>Sync now</Text>
-      </Pressable>
-      <Pressable style={s.btnGhost} onPress={() => navigation?.goBack?.()}>
-        <Text style={s.btnGhostText}>Back</Text>
-      </Pressable>
-    </ScrollView>
+    <GlassBackground>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 30 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Eyebrow label="Copy desk" />
+        <Text style={s.title}>Editor</Text>
+        <View style={{ height: 12 }} />
+        {conflict ? (
+          <Card><Text style={{ color: theme.red }}>Server version was newer; local edits were replaced.</Text></Card>
+        ) : null}
+        <GlassPanel>
+          <TextInput
+            style={[s.input, { backgroundColor: 'rgba(255,255,255,0.04)' }]}
+            placeholder="Headline"
+            placeholderTextColor={theme.faint}
+            value={title}
+            onChangeText={(t) => { setTitle(t); queueAutosave(t, body); }}
+            accessibilityLabel="Headline"
+          />
+          <TextInput
+            style={[s.input, { backgroundColor: 'rgba(255,255,255,0.04)', minHeight: 160, textAlignVertical: 'top' }]}
+            placeholder="Write the story\u2026"
+            placeholderTextColor={theme.faint}
+            value={body}
+            multiline
+            onChangeText={(b) => { setBody(b); queueAutosave(title, b); }}
+            accessibilityLabel="Story body"
+          />
+          <Text style={s.tiny}>{status}</Text>
+        </GlassPanel>
+        <GradientButton label="Save & sync" onPress={sync} style={{ marginTop: 14 }} />
+        <GhostButton label="Back" onPress={() => navigation?.goBack?.()} style={{ marginTop: 10 }} />
+      </ScrollView>
+    </GlassBackground>
   );
 }

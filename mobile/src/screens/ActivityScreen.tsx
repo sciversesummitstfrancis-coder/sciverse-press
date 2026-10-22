@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
 import { FadeIn } from '../anim';
 import { api } from '../api';
-import { Card, Empty, ErrorBox, Loading, palette, s } from '../ui';
+import { Card, Empty, ErrorBox, Eyebrow, GlassBackground, Loading, palette, s } from '../ui';
 
 export interface ActivityItem {
   action: string;
@@ -82,14 +82,17 @@ export default function ActivityTicker() {
   if (!items) return <Loading />;
   if (!items.length)
     return (
-      <View style={s.screen}>
-        <Empty label="Nothing yet — activity will appear here as it happens." />
-      </View>
+      <GlassBackground>
+        <View style={s.screen}>
+          <Empty label="Nothing yet — activity will appear here as it happens." />
+        </View>
+      </GlassBackground>
     );
 
   return (
+    <GlassBackground>
     <FlatList
-      style={{ backgroundColor: palette.bg }}
+      style={{ backgroundColor: 'transparent' }}
       contentContainerStyle={{ padding: 16 }}
       data={items}
       keyExtractor={(i) => `${i.action}-${i.entityId}-${i.at}`}
@@ -105,5 +108,6 @@ export default function ActivityTicker() {
         </FadeIn>
       )}
     />
+    </GlassBackground>
   );
 }

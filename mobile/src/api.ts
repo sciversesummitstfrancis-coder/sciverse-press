@@ -51,6 +51,7 @@ export interface Article {
   id: string; title: string; body: string;
   committeeId?: string; status?: string;
   updatedAt: string; createdAt?: string;
+  authorName?: string; committeeName?: string; version?: number;
 }
 export interface AppNotification { id: string; title: string; message: string; read?: boolean; createdAt?: string; }
 
