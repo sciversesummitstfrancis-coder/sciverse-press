@@ -19,9 +19,13 @@ export const IS_TAURI =
 function detectDefaultBase(): string {
   if (import.meta.env.VITE_API_URL) return String(import.meta.env.VITE_API_URL);
   if (import.meta.env.DEV) return "/api";
-  // Packaged app: talk to the local backend directly.
-  const host = window.location.hostname || "localhost";
-  return `http://${host}:4000`;
+  // Packaged app: the backend runs on the same machine as the app.
+  //
+  // It must NOT be derived from window.location.hostname: the Tauri webview
+  // is served from `tauri://localhost` on Linux but from `http://tauri.localhost`
+  // on Windows and macOS, so the hostname would be "tauri.localhost" there and
+  // every request would go to a host that does not exist.
+  return "http://localhost:4000";
 }
 
 export function getApiBase(): string {

@@ -1,23 +1,53 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { apiFetch } from "./api";
 
 export interface Me { id: string; email: string; name: string; role: string }
-const Ctx = createContext<{ me: Me | null; loading: boolean; reload: () => void }>({ me: null, loading: true, reload: () => {} });
+const Ctx = createContext<{
+  me: Me | null;
+  loading: boolean;
+  reload: () => void;
+  serverDown: boolean;
+}>({ me: null, loading: true, reload: () => {}, serverDown: false });
 export const useMe = () => useContext(Ctx);
+
+/** True when the failure was the network, not the server saying no. */
+export function isNetworkError(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e ?? "");
+  return (
+    /failed to fetch|networkerror|load failed|network request failed/i.test(msg) ||
+    (e instanceof TypeError)
+  );
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
   const [loading, setLoading] = useState(true);
+  const [serverDown, setServerDown] = useState(false);
   const reload = useCallback(() => {
-    if (!localStorage.getItem("sp_token")) { setMe(null); setLoading(false); return; }
+    if (!localStorage.getItem("sp_token")) {
+      setMe(null); setLoading(false);
+      // Still probe the server so the login screen can warn early that it is
+      // not reachable, rather than only after a failed sign-in.
+      apiFetch("/health", {}, 6000)
+        .then(() => setServerDown(false))
+        .catch(() => setServerDown(true));
+      return;
+    }
     setLoading(true);
-    apiFetch("/me")
-      .then((m) => { setMe(m as Me); })
-      .catch(() => { setMe(null); })
+    apiFetch("/me", {}, 8000)
+      .then((m) => { setMe(m as Me); setServerDown(false); })
+      .catch((e) => {
+        setMe(null);
+        // A network failure means the server is not reachable - that is a
+        // different situation from "your session expired" and deserves a
+        // different screen.
+        setServerDown(isNetworkError(e));
+      })
       .finally(() => setLoading(false));
   }, []);
   useEffect(reload, [reload]);
-  return <Ctx.Provider value={{ me, loading, reload }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ me, loading, reload, serverDown }}>{children}</Ctx.Provider>;
 }
 
 /**
@@ -124,7 +154,9 @@ export function Empty({
       {msg && <div className="empty-msg">{msg}</div>}
       {action && (
         action.to ? (
-          <a className="btn sm" href={action.to} style={{ marginTop: 14 }}>{action.label}</a>
+          // A react-router <Link>, not an <a href>: a plain link would tear
+          // down the whole app and reload the webview, losing all state.
+          <Link className="btn sm" to={action.to} style={{ marginTop: 14 }}>{action.label}</Link>
         ) : (
           <button className="btn sm" onClick={action.onClick} style={{ marginTop: 14 }}>{action.label}</button>
         )

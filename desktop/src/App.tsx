@@ -6,6 +6,7 @@ import { apiFetch } from "./api";
 import { icons } from "./icons";
 import { PageTransition, Orb, GlassShimmer } from "./motion";
 import { CommandPalette } from "./CommandPalette";
+import { ServerUnreachable } from "./ServerUnreachable";
 import { Login, Register } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { Articles, ArticleDetail } from "./pages/Articles";
@@ -21,7 +22,7 @@ function CommitteeRoute() { const { id } = useParams(); return <CommitteeDetail 
 function DelegateRoute() { const { id } = useParams(); return <DelegateDetail id={id!} />; }
 
 function Shell() {
-  const { me, loading } = useMe();
+  const { me, loading, reload, serverDown } = useMe();
   const loc = useLocation();
   const notifCount = useNotifCount();
   useEffect(() => {
@@ -35,6 +36,16 @@ function Shell() {
         <div className="panel" style={{ width: 320 }} aria-busy="true"><div className="skel" /><div className="skel" style={{ marginTop: 10, width: "60%" }} /></div>
       </div>
     );
+  // The backend is unreachable: say so once, clearly, instead of letting
+  // every screen fill up with raw fetch errors.
+  //
+  // A returning user (with a saved session) gets the full screen - they are
+  // already signed in and only the server is missing. A first-time visitor
+  // gets a dismissible banner on the login screen instead, because they may
+  // want to point the app at a server that is running elsewhere.
+  const hasSession = !!localStorage.getItem("sp_token");
+  if (serverDown && hasSession)
+    return <ServerUnreachable onRetry={reload} />;
   if (!me)
     return (
       <Routes>

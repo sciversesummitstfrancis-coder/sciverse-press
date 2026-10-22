@@ -20,7 +20,7 @@ export function Login() {
   const [showServer, setShowServer] = useState(false);
   const [server, setServer] = useState(getApiBase());
   const nav = useNavigate();
-  const { me, reload } = useMe();
+  const { me, reload, serverDown } = useMe();
   if (me) return <Navigate to="/" replace />;
   async function submit(e: React.FormEvent) {
     e.preventDefault(); setErr("");
@@ -76,6 +76,15 @@ export function Login() {
                     />
                   </label>
                 )}
+              </div>
+            )}
+            {serverDown && (
+              <div className="panel" role="status" style={{ borderLeft: "3px solid var(--amber, #ffb454)", marginBottom: 14 }}>
+                <b>Can’t reach the server at {getApiBase()}</b>
+                <p className="muted" style={{ fontSize: ".85rem", margin: "6px 0 0" }}>
+                  Start it with <code>npm run start --prefix backend</code>, or point the app at
+                  another server below.
+                </p>
               </div>
             )}
             {err && <p className="bad" role="alert">{err}</p>}
