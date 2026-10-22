@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sciverse Press",
     "slug": "sciverse-press",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "scheme": "sciverse-press",
     "userInterfaceStyle": "dark",
@@ -14,7 +14,7 @@
     },
     "android": {
       "package": "com.sciverse.press",
-      "versionCode": 4,
+      "versionCode": 5,
       "usesCleartextTraffic": true,
       "permissions": ["INTERNET"],
       "adaptiveIcon": {

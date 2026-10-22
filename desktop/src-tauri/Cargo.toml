@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "1.0.1"
+version = "1.0.2"
 description = "Sciverse Press — Summit MUN press & committee management platform"
 authors = ["Sciverse Summit"]
 license = ""
