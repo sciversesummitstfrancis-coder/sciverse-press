@@ -78,6 +78,11 @@ See `docs/ADMIN.md`.
 * **Live newsroom ticker** — an animated, self-refreshing feed of everything
   happening across the summit, on the desktop dashboard and the mobile
   *Live newsroom feed* screen.
+* **First-run setup** — because the platform ships empty, the dashboard opens
+  with a three-step panel (create a committee → add your team → file the
+  first story) instead of a wall of zeros. Non-admins see a short "being set
+  up" note, and every empty list explains what belongs there and offers the
+  button that creates it.
 * **Runtime-configurable server address** — the packaged desktop and mobile
   apps point at a real backend instead of a dev proxy, and the address is
   editable from the login screen.
