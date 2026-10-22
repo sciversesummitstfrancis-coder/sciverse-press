@@ -84,7 +84,10 @@ export default function ActivityTicker() {
     return (
       <GlassBackground>
         <View style={s.screen}>
-          <Empty label="Nothing yet — activity will appear here as it happens." />
+          <Empty
+            title="Nothing yet"
+            msg="Activity across the summit will appear here as it happens."
+          />
         </View>
       </GlassBackground>
     );

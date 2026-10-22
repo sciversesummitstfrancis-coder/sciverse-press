@@ -54,22 +54,40 @@ export function setToken(t: string | null) {
   else localStorage.removeItem("sp_token");
 }
 
-export async function apiFetch(path: string, init: RequestInit = {}) {
+export async function apiFetch(path: string, init: RequestInit = {}, timeoutMs = 15000) {
   const t = localStorage.getItem("sp_token");
-  const res = await fetch(getApiBase() + path, {
-    ...init,
-    headers: {
-      ...(init.body && !(init.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
-      ...(t ? { Authorization: `Bearer ${t}` } : {}),
-      ...(init.headers || {}),
-    },
-  });
-  if (res.status === 401) {
-    setToken(null);
-    if (location.pathname !== "/login") location.href = "/login";
-    throw new Error("session expired");
+  // Never let a request hang forever — a stalled connection would leave the
+  // UI spinning with no way out.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const external = init.signal;
+  if (external) {
+    if (external.aborted) controller.abort();
+    else external.addEventListener("abort", () => controller.abort(), { once: true });
   }
-  if (!res.ok) throw new Error(`${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const ct = res.headers.get("content-type") || "";
-  return ct.includes("json") ? res.json() : res.text();
+  try {
+    const res = await fetch(getApiBase() + path, {
+      ...init,
+      signal: controller.signal,
+      headers: {
+        ...(init.body && !(init.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
+        ...(t ? { Authorization: `Bearer ${t}` } : {}),
+        ...(init.headers || {}),
+      },
+    });
+    if (res.status === 401) {
+      setToken(null);
+      if (location.pathname !== "/login") location.href = "/login";
+      throw new Error("session expired");
+    }
+    if (!res.ok) throw new Error(`${res.status}: ${(await res.text()).slice(0, 200)}`);
+    const ct = res.headers.get("content-type") || "";
+    return ct.includes("json") ? res.json() : res.text();
+  } catch (e) {
+    const err = e as Error & { name?: string };
+    if (err?.name === "AbortError") throw new Error("The server did not respond in time.");
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
 }

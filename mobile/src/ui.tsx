@@ -356,9 +356,41 @@ export function Eyebrow({ label, tone = palette.accent }: { label: string; tone?
 
 /* -------------------------------------------------------------- primitives -- */
 
-export const Empty = ({ label }: { label: string }) => (
+/**
+ * A useful empty state.
+ *
+ * `label` is the short headline (kept for backwards compatibility with the
+ * old one-liner form). `title` + `msg` + `action` give the fuller version
+ * that tells the user what belongs here and offers the button that creates it.
+ */
+export const Empty = ({
+  label,
+  title,
+  msg,
+  action,
+}: {
+  label?: string;
+  title?: string;
+  msg?: string;
+  action?: { label: string; onPress: () => void };
+}) => (
   <View style={s.empty}>
-    <Text style={{ color: palette.ink, fontWeight: '800' }}>{label}</Text>
+    <Text style={{ color: palette.ink, fontWeight: '800', textAlign: 'center', fontSize: 15 }}>
+      {title ?? label ?? 'Nothing here yet'}
+    </Text>
+    {msg ? (
+      <Text style={[s.body, { textAlign: 'center', marginTop: 6 }]}>{msg}</Text>
+    ) : null}
+    {action ? (
+      <Pressable
+        style={[s.btnGhost, { marginTop: 14 }]}
+        onPress={action.onPress}
+        accessibilityRole="button"
+        accessibilityLabel={action.label}
+      >
+        <Text style={s.btnGhostText}>{action.label}</Text>
+      </Pressable>
+    ) : null}
   </View>
 );
 

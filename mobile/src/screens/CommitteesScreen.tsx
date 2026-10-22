@@ -36,7 +36,10 @@ export default function CommitteesScreen() {
           </Card>
         )}
         ListEmptyComponent={
-          q.loading ? <Loading /> : q.error ? <ErrorBox message={q.error} onRetry={q.refresh} /> : <Empty label="No committees found." />
+          q.loading ? <Loading /> : q.error ? <ErrorBox message={q.error} onRetry={q.refresh} /> : <Empty
+            title="No committees yet"
+            msg="Committees are the working groups of the summit — each tracks its own agenda, sessions and progress."
+          />
         }
       />
     </GlassBackground>

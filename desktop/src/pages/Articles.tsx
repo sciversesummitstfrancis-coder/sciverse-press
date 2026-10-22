@@ -28,8 +28,15 @@ export function Articles() {
           {["draft", "submitted", "under_review", "revision_requested", "approved", "published", "rejected"].map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
         </select>
       </div>
-      {list.loading && <Loading />}{list.error && <Err msg={list.error} />}
-      {!list.data?.items.length && !list.loading ? <div className="empty"><b>No stories here yet</b>Write the first draft — it autosaves as you type.</div> : null}
+      {list.loading && <Loading />}
+      {list.error && <Err msg={list.error} onRetry={list.retry} />}
+      {!list.data?.items.length && !list.loading && !list.error && (
+        <Empty
+          title="No stories here yet"
+          msg="Write the first dispatch — it autosaves as you type, then goes to a coordinator for review."
+          action={{ label: "Write the first story", to: "/articles/new" }}
+        />
+      )}
       <div className="tablewrap">
       <table><thead><tr><th>Story</th><th>Status</th><th>Author</th><th>Updated</th></tr></thead>
         <tbody>{list.data?.items.map((a) => (
@@ -37,7 +44,9 @@ export function Articles() {
             <td><span className={`pill st-${a.status}`}>{a.status.replace(/_/g, " ")}</span></td><td>{a.authorName}</td><td className="muted">{time_fmt(a.updatedAt)}</td></tr>
         ))}</tbody></table>
       </div>
-      <p className="muted">{list.data?.total ?? 0} articles</p>
+      <p className="muted">
+        {list.data?.total ?? 0} {list.data?.total === 1 ? "article" : "articles"}
+      </p>
       </div>
     </div>
   );

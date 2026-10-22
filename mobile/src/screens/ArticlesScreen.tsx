@@ -35,7 +35,10 @@ export default function ArticlesScreen({ nav }: { nav: any }) {
             ) : null}
             {q.loading ? <Loading /> : null}
             {q.error ? <ErrorBox message={q.error} onRetry={q.refresh} /> : null}
-            {!q.loading && !q.error && !(q.data ?? []).length ? <Empty label="No articles yet." /> : null}
+            {!q.loading && !q.error && !(q.data ?? []).length ? <Empty
+              title="No articles yet"
+              msg="File the first dispatch — it saves as you type, then goes to a coordinator for review."
+            /> : null}
           </View>
         }
         renderItem={({ item }) => (

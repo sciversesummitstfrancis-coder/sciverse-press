@@ -83,37 +83,39 @@ export function CommandPalette() {
   }, [open]);
 
   // Load searchable documents in the background so the palette feels instant.
+  // The result is cached: reopening the palette must not fire three requests
+  // every time, and a slow server must never stall the UI.
+  const docsLoaded = useRef(false);
   useEffect(() => {
-    if (!open) return;
+    if (!open || docsLoaded.current) return;
     let alive = true;
     (async () => {
       const out: SearchDoc[] = [];
       const push = (d: SearchDoc) => out.push(d);
-      await Promise.all([
-        apiFetch("/committees")
-          .then((rows) =>
-            (rows as Array<{ id: string; name: string; abbreviation: string }>).forEach((c) =>
-              push({ id: `c-${c.id}`, label: c.name, group: "Committees", hint: c.abbreviation, to: `/committees/${c.id}` }),
-            ),
-          )
-          .catch(() => undefined),
-        apiFetch("/articles")
-          .then((rows) =>
-            (rows as Array<{ id: string; title: string; category?: string }>).forEach((a) =>
-              push({ id: `a-${a.id}`, label: a.title, group: "Articles", hint: a.category, to: `/articles/${a.id}` }),
-            ),
-          )
-          .catch(() => undefined),
-        apiFetch("/delegates")
-          .then((rows) => {
-            const items = (rows as { items?: Array<{ id: string; name: string; publicId?: string; country?: string }> }).items ?? [];
-            items.forEach((d) =>
-              push({ id: `d-${d.id}`, label: d.name, group: "Delegates", hint: d.publicId ?? d.country, to: `/rankings/${d.id}` }),
-            );
-          })
-          .catch(() => undefined),
+      const results = await Promise.allSettled([
+        apiFetch("/committees", {}, 6000),
+        apiFetch("/articles", {}, 6000),
+        apiFetch("/delegates", {}, 6000),
       ]);
-      if (alive) setDocs(out);
+      if (!alive) return;
+      if (results[0].status === "fulfilled") {
+        (results[0].value as Array<{ id: string; name: string; abbreviation: string }>).forEach((c) =>
+          push({ id: `c-${c.id}`, label: c.name, group: "Committees", hint: c.abbreviation, to: `/committees/${c.id}` }),
+        );
+      }
+      if (results[1].status === "fulfilled") {
+        (results[1].value as Array<{ id: string; title: string; category?: string }>).forEach((a) =>
+          push({ id: `a-${a.id}`, label: a.title, group: "Articles", hint: a.category, to: `/articles/${a.id}` }),
+        );
+      }
+      if (results[2].status === "fulfilled") {
+        const items = (results[2].value as { items?: Array<{ id: string; name: string; publicId?: string; country?: string }> }).items ?? [];
+        items.forEach((d) =>
+          push({ id: `d-${d.id}`, label: d.name, group: "Delegates", hint: d.publicId ?? d.country, to: `/rankings/${d.id}` }),
+        );
+      }
+      setDocs(out);
+      docsLoaded.current = true;
     })();
     return () => { alive = false; };
   }, [open]);

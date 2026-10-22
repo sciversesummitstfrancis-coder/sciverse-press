@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { api } from '../api';
+import { api, currentUserInfo } from '../api';
+import SetupPanel from './SetupPanel';
 import {
   Card,
   Empty,
@@ -20,7 +21,10 @@ import {
 export default function DashboardScreen({ nav }: { nav: any }) {
   const articles = useFetch(() => api.articles());
   const notifs = useFetch(() => api.notifications());
+  const committees = useFetch(() => api.committees());
   const unread = (notifs.data ?? []).filter((n) => !n.read).length;
+  const isAdmin = currentUserInfo()?.role === 'admin';
+  const isFresh = !committees.loading && (committees.data ?? []).length === 0;
 
   return (
     <GlassBackground>
@@ -59,11 +63,17 @@ export default function DashboardScreen({ nav }: { nav: any }) {
               </View>
             </Card>
 
+            {isFresh ? <SetupPanel nav={nav} isAdmin={isAdmin} /> : null}
+
             <Text style={[s.h, { marginTop: 14 }]}>Latest articles</Text>
             {articles.loading ? <Loading /> : null}
             {articles.error ? <ErrorBox message={articles.error} onRetry={articles.refresh} /> : null}
             {!articles.loading && !articles.error && (articles.data ?? []).length === 0 ? (
-              <Empty label="No articles yet. File the first dispatch." />
+              <Empty
+                title="No articles yet"
+                msg="File the first dispatch — it saves as you type, then goes to a coordinator for review."
+                action={{ label: '+ New article', onPress: () => nav.navigate('Editor') }}
+              />
             ) : null}
 
             <ScaleIn delay={100}>

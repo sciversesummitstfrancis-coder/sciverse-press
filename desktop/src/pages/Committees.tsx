@@ -10,6 +10,7 @@ const cardVariants: Variants = {
 };
 
 export function Committees() {
+  const { me } = useMe();
   const list = useFetch<Array<{ id: string; name: string; abbreviation: string; status: string; progressPercent: number; sessionCount: number }>>("/committees");
   return (
     <div>
@@ -21,8 +22,15 @@ export function Committees() {
         </div>
       </motion.div>
       <motion.div className="com-grid" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }} initial="hidden" animate="show">
-        {list.loading && <Loading />}{list.error && <Err msg={list.error} />}
-        {!list.data?.length && !list.loading ? <div className="empty"><b>No committees yet</b>An admin can create the first one.</div> : null}
+        {list.loading && <Loading />}
+        {list.error && <Err msg={list.error} onRetry={list.retry} />}
+        {!list.data?.length && !list.loading && !list.error && (
+          <Empty
+            title="No committees yet"
+            msg="Committees are the working groups of the summit — each one tracks its own agenda, sessions and progress."
+            action={me?.role === "admin" ? { label: "Create a committee", to: "/admin" } : undefined}
+          />
+        )}
         {list.data?.map((c) => (
           <motion.div key={c.id} variants={cardVariants}>
             <Link to={`/committees/${c.id}`} className="panel com-card">

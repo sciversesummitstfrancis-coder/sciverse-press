@@ -55,7 +55,10 @@ export default function RankingsScreen() {
           </Card>
         )}
         ListEmptyComponent={
-          q.loading ? <Loading /> : q.error ? <ErrorBox message={q.error} onRetry={q.refresh} /> : <Empty label="No rankings published yet." />
+          q.loading ? <Loading /> : q.error ? <ErrorBox message={q.error} onRetry={q.refresh} /> : <Empty
+            title="No rankings yet"
+            msg="Rankings appear as committees award points to delegates."
+          />
         }
       />
     </GlassBackground>
