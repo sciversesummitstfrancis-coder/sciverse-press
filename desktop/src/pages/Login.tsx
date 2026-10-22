@@ -3,6 +3,16 @@ import { useNavigate, Link, Navigate } from "react-router-dom";
 import { apiFetch, setToken, getApiBase, setApiBase, IS_TAURI } from "../api";
 import { useMe } from "../ui";
 
+/** The demo accounts seeded by the backend. All use the same password. */
+const DEMO_ACCOUNTS = [
+  "admin@sciverse.local",
+  "coord@sciverse.local",
+  "eb@sciverse.local",
+  "chair@sciverse.local",
+  "press@sciverse.local",
+  "org@sciverse.local",
+];
+
 export function Login() {
   const [email, setEmail] = useState("press@sciverse.local");
   const [password, setPassword] = useState("Sciverse123!");
@@ -71,8 +81,23 @@ export function Login() {
             {err && <p className="bad" role="alert">{err}</p>}
             <button className="btn" type="submit" style={{ width: "100%", justifyContent: "center" }}>Sign in</button>
           </form>
-          <p className="muted" style={{ fontSize: ".82rem", marginTop: 14 }}>
-            Built-in admin: <code>admin@sciverse.local</code> / <code>Sciverse123!</code> — the admin can create every other account.{" "}
+          <div className="row" style={{ flexWrap: "wrap", gap: 6, marginTop: 14 }}>
+            {DEMO_ACCOUNTS.map((a) => (
+              <button
+                key={a}
+                type="button"
+                className="chip"
+                style={{ cursor: "pointer", border: 0 }}
+                onClick={() => { setEmail(a); setPassword("Sciverse123!"); }}
+                aria-label={`Use ${a}`}
+              >
+                {a.split("@")[0]}
+              </button>
+            ))}
+          </div>
+          <p className="muted" style={{ fontSize: ".82rem", marginTop: 10 }}>
+            All demo accounts use the password <code>Sciverse123!</code>. The admin can create
+            more from the Admin centre.{" "}
             <Link to="/register">Create account</Link>
           </p>
         </div>

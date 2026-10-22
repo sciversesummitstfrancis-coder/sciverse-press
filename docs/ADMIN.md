@@ -76,24 +76,26 @@ seconds and degrades quietly when the backend is unreachable.
 
 ## First run
 
-The platform ships **no built-in content**. A fresh database contains exactly
-one account:
-
-```
-admin@sciverse.local / Sciverse123!
-```
-
-Everything else — committees, delegates, articles, points — is created from
-the admin UI. Create the rest of the accounts from **Accounts → New account**,
-and committees from **Committees → New**.
-
-`npm run seed -w backend` is idempotent: it creates the bootstrap admin if
-missing and does nothing else.
-
-## Demo credentials
+The platform ships **no built-in content** — no committees, delegates,
+articles, points or notifications. A fresh database contains only the demo
+**accounts**, so every role can be tried:
 
 | Email | Role | Password |
 |---|---|---|
 | `admin@sciverse.local` | admin | `Sciverse123!` |
+| `coord@sciverse.local` | coordinator | `Sciverse123!` |
+| `eb@sciverse.local` | eb | `Sciverse123!` |
+| `chair@sciverse.local` | chair | `Sciverse123!` |
+| `press@sciverse.local` | press | `Sciverse123!` |
+| `org@sciverse.local` | organizer | `Sciverse123!` |
 
-Additional accounts are created by the admin — there are no other defaults.
+Everything else — committees, delegates, articles, points — is created from
+the admin UI: **Accounts → New account** and **Committees → New**.
+
+`npm run seed -w backend` is idempotent: it creates any missing demo
+accounts and does nothing else. The Android app seeds the same accounts into
+its local database, so it can be used with no server at all.
+
+> These accounts are **development conveniences**. For a real deployment set
+> `CORS_ORIGIN`, `SESSION_SECRET` and a `DATABASE_PATH` pointing at
+> Postgres, then delete the demo accounts from the Admin centre.

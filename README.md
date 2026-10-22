@@ -53,7 +53,9 @@ signs in instantly and works with the laptop switched off.
 The **Admin centre** (mobile: Profile → Admin centre) runs entirely on the
 device, so a fresh install is usable with no server at all:
 
-* `admin@sciverse.local` / `Sciverse123!` — bootstrap admin, always present
+* All six demo accounts are seeded locally (`admin`, `coord`, `eb`, `chair`,
+  `press`, `org` @ `sciverse.local`, password `Sciverse123!`) so every role can
+  be tried
 * The admin can create further accounts (email, name, role, password), change
   roles, delete accounts, and create/edit/delete committees
 * The desktop app and the backend keep their own copies of the same model; the

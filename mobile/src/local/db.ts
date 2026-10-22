@@ -143,41 +143,19 @@ export async function verifyLocalPassword(
 // The app is local-first: it must be usable the moment it is installed, with
 // no server, no network and no configuration.
 //
-// A bootstrap admin account is always created (the admin can then create
-// everything else from the app). Demo committees, delegates, points, articles
-// and notifications are seeded as well so a fresh install has something to
-// show instead of empty screens.
-const BOOTSTRAP_USER: [string, string, string] = [
-  'admin@sciverse.local',
-  'Admin',
-  'admin',
-];
+// The demo ACCOUNTS are always created so every role can be tried, but no
+// content is seeded — the admin creates committees, delegates, articles and
+// points from the Admin centre. The server seeds exactly the same accounts,
+// so both clients agree on what exists.
 const BOOTSTRAP_PASSWORD = 'Sciverse123!';
 
 const DEMO_USERS: Array<[string, string, string]> = [
-  BOOTSTRAP_USER,
+  ['admin@sciverse.local', 'Admin', 'admin'],
   ['coord@sciverse.local', 'Priya Coordinator', 'coordinator'],
   ['eb@sciverse.local', 'Arjun EB', 'eb'],
   ['chair@sciverse.local', 'Meera Chair', 'chair'],
   ['press@sciverse.local', 'Dev Press', 'press'],
   ['org@sciverse.local', 'Sam Organizer', 'organizer'],
-];
-
-const DEMO_COMMITTEES: Array<[string, string, string, string]> = [
-  ['United Nations Security Council', 'UNSC', 'Hall A', 'Middle East ceasefire and aid corridor'],
-  ['World Health Organization', 'WHO', 'Hall B', 'Pandemic preparedness fund'],
-  ['Disarmament Commission', 'DISEC', 'Hall C', 'Non-proliferation verification regime'],
-];
-
-const DEMO_DELEGATES: Array<[string, string, number, string]> = [
-  ['Aarav Sharma', 'India', 0, 'SEED-0'],
-  ['Beatriz Costa', 'Brazil', 1, 'SEED-1'],
-  ['Chen Wei', 'China', 2, 'SEED-2'],
-  ['Dalia Haddad', 'Egypt', 0, 'SEED-3'],
-  ['Erik Lindqvist', 'Sweden', 1, 'SEED-4'],
-  ['Fatima Zahra', 'Morocco', 2, 'SEED-5'],
-  ['Gabriel Souza', 'Brazil', 0, 'SEED-6'],
-  ['Hana Sato', 'Japan', 1, 'SEED-7'],
 ];
 
 /**
@@ -223,125 +201,13 @@ async function seedIfEmpty(database: SQLite.SQLiteDatabase): Promise<void> {
     .getAllSync<{ id: string }>('SELECT id FROM users')
     .map((u) => u.id);
 
-  // ---- committees, delegates, points, articles, notifications ----------
-  if (count('committees') === 0) {
-    const committeeIds: string[] = [];
-    for (const [name, abbr, venue, topic] of DEMO_COMMITTEES) {
-      const id = uid('c-');
-      committeeIds.push(id);
-      database.runSync(
-        `INSERT OR REPLACE INTO committees
-          (id, name, abbreviation, venue, agenda, topic, status, progress_percent, current_agenda_item, updated_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?)`,
-        [id, name, abbr, venue, topic, topic, 'in_session', 40, 'Opening statements', ts],
-      );
-    }
-
-    const delegateIds: string[] = [];
-    for (const [name, country, comIdx, publicId] of DEMO_DELEGATES) {
-      const id = uid('d-');
-      delegateIds.push(id);
-      database.runSync(
-        'INSERT OR REPLACE INTO delegates (id, name, public_id, committee_id, country) VALUES (?,?,?,?,?)',
-        [id, name, publicId, committeeIds[comIdx], country],
-      );
-    }
-
-    const pressId = (
-      database.getFirstSync<{ id: string }>(
-        "SELECT id FROM users WHERE email = 'press@sciverse.local'",
-      ) ?? { id: userIds[0] }
-    ).id;
-
-    const articles: Array<[string, string, string, number]> = [
-      [
-        'Security council opens with ceasefire debate',
-        'Delegates traded opening statements on the corridor proposal before the committee moved to a procedural vote on sanctions exemptions.',
-        'UNSC',
-        0,
-      ],
-      [
-        'WHO panel backs pooled procurement fund',
-        'Members agreed to seed a shared vaccine procurement facility, with the first tranche earmarked for frontline clinics.',
-        'WHO',
-        1,
-      ],
-      [
-        'Disarmament commission reviews verification protocol',
-        'The technical annex on inspection timelines drew sharp objections from three delegations seeking a longer grace period.',
-        'DISEC',
-        2,
-      ],
-      [
-        'Points desk: diplomacy leads the tally',
-        'Early caucus figures show diplomacy awards clustering around the regional bloc, with procedure points spread thin across committees.',
-        'UNSC',
-        0,
-      ],
-    ];
-
-    articles.forEach(([title, body, abbr, comIdx], i) => {
-      const when = new Date(Date.now() - i * 3600_000).toISOString();
-      database.runSync(
-        `INSERT OR REPLACE INTO articles
-          (id, author_id, title, subtitle, body, committee_id, category, tags, status, version, word_count, created_at, updated_at, dirty)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0)`,
-        [
-          uid('a-'),
-          pressId,
-          title,
-          '',
-          body,
-          committeeIds[comIdx],
-          abbr,
-          '[]',
-          'published',
-          1,
-          body.split(/\s+/).length,
-          when,
-          when,
-        ],
-      );
-    });
-
-    const scores = [42, 37, 31, 28, 24, 19, 15, 11];
-    delegateIds.forEach((delegateId, i) => {
-      database.runSync(
-        `INSERT OR REPLACE INTO point_awards
-          (id, delegate_id, awarded_by, category, value, reason, reversed, created_at)
-         VALUES (?,?,?,?,?,?,0,?)`,
-        [
-          uid('p-'),
-          delegateId,
-          pressId,
-          ['substance', 'diplomacy', 'procedure', 'leadership'][i % 4],
-          scores[i],
-          'Seeded demo score',
-          ts,
-        ],
-      );
-    });
-
-    const notes: Array<[string, string]> = [
-      ['Committee update', 'UNSC moved to in_session with 40% progress.'],
-      ['New article published', 'Security council opens with ceasefire debate'],
-      ['Points update', 'Diplomacy +3 for the regional bloc'],
-    ];
-    notes.forEach(([title, body], i) => {
-      // Every account gets the same notification feed.
-      for (const userId of userIds) {
-        database.runSync(
-          `INSERT OR REPLACE INTO notifications (id, user_id, kind, title, body, read, created_at)
-           VALUES (?,?,?,?,?,?,?)`,
-          [`${uid('n-')}-${userId}`, userId, 'system', title, body, i > 0 ? 1 : 0, ts],
-        );
-      }
-    });
-  }
-
+  // ---- content --------------------------------------------------------
+  // No demo committees, delegates, points, articles or notifications are
+  // seeded. The admin creates all of that from the Admin centre, so the
+  // device and the server always agree on what exists.
   database.runSync(
     'INSERT OR REPLACE INTO event_settings (key, value) VALUES (?,?)',
-    ['eventName', 'Sciverse Summit 2026'],
+    ['eventName', 'Sciverse Summit'],
   );
 }
 
