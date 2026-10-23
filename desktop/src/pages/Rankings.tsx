@@ -45,17 +45,19 @@ export function Rankings() {
           <button className="btn ghost" onClick={() => setDeb(q)}>Search</button>
         </div>
         {list.loading && <Loading />}{list.error && <Err msg={list.error} />}
-        {!list.data?.items.length && !list.loading ? <div className="empty"><b>No delegates found</b>Try a different filter — or register delegates in Admin.</div> : null}
-        <div className="tablewrap">
-        <table><thead><tr><th>#</th><th>Delegate</th><th>Country</th><th>Committee</th><th className="num">Points</th></tr></thead>
-          <tbody>{list.data?.items.map((d, i) => (
-            <motion.tr key={d.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.03, duration: 0.35 }} className={d.rankInCommittee <= 3 ? `top${d.rankInCommittee}` : ""}>
-              <td className="rank">{d.rankInCommittee}</td>
-              <td><Link to={`/rankings/${d.id}`} style={{ fontWeight: 600, color: "inherit" }}>{d.name}</Link> <span className="muted">{d.publicId}</span></td>
-              <td>{d.country}</td><td>{d.committeeName}</td><td className="num"><b>{d.totalPoints}</b></td>
-            </motion.tr>
+        {!list.data?.items.length && !list.loading ? <Empty tall icon={icons.trophy} title="No delegates found" msg={list.error ? undefined : "Delegates appear here once they are registered to a committee — register them in Admin, then their points and rank show up."} /> : null}
+        {!!list.data?.items.length && (
+          <div className="tablewrap">
+          <table><thead><tr><th>#</th><th>Delegate</th><th>Country</th><th>Committee</th><th className="num">Points</th></tr></thead>
+            <tbody>{list.data?.items.map((d, i) => (
+              <motion.tr key={d.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.03, duration: 0.35 }} className={d.rankInCommittee <= 3 ? `top${d.rankInCommittee}` : ""}>
+                <td className="rank">{d.rankInCommittee}</td>
+                <td><Link to={`/rankings/${d.id}`} style={{ fontWeight: 600, color: "inherit" }}>{d.name}</Link> <span className="muted">{d.publicId}</span></td>
+                <td>{d.country}</td><td>{d.committeeName}</td><td className="num"><b>{d.totalPoints}</b></td>
+              </motion.tr>
           ))}</tbody></table>
-        </div>
+          </div>
+        )}
       </motion.div>
       <motion.div className="panel" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
         <h2>Press radar · verifiable activity (24h) <span className="rule" /></h2>

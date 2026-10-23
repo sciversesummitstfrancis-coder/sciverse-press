@@ -141,14 +141,17 @@ export function Empty({
   msg,
   action,
   icon,
+  tall,
 }: {
   title?: string;
   msg?: string;
   action?: { label: string; onClick?: () => void; to?: string };
   icon?: ReactNode;
+  /** Stretch to fill the page canvas — for a main page's primary empty state. */
+  tall?: boolean;
 }) {
   return (
-    <div className="empty" role="status">
+    <div className={"empty" + (tall ? " tall" : "")} role="status">
       {icon && <div className="empty-ico">{icon}</div>}
       <b>{title}</b>
       {msg && <div className="empty-msg">{msg}</div>}

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Suspense, lazy, useState } from "react";
 import { apiFetch } from "../api";
 import { useFetch, Loading, Err, Empty, useMe } from "../ui";
+import { icons } from "../icons";
 
 const Charts = lazy(() => import("./Charts"));
 
@@ -21,6 +22,10 @@ export function Analytics() {
   if (a.loading) return <Loading />;
   if (a.error) return <Err msg={a.error} />;
   const d = a.data!;
+  // One source of truth for "is there anything to chart": if neither metric
+  // has rows yet, show a single welcoming empty state instead of a row of
+  // dashes over a grid of blank chart boxes (which read as "broken").
+  const noData = !d.articlesByDay.length && !d.pointsDist.length;
   return (
     <div style={{ display: "grid", gap: 18 }}>
       <div className="pagehead" style={{ marginBottom: 2 }}>
@@ -48,15 +53,20 @@ export function Analytics() {
           <label>To<input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></label>
         </div>
       </div>
-      <div className="kpis">
-        <div className="panel kpi"><div className="v">{d.avgReviewDays != null ? d.avgReviewDays.toFixed(1) + "d" : "—"}</div><div className="l">Avg review time</div></div>
-        <div className="panel kpi"><div className="v">{(d.revisionRate * 100).toFixed(0)}%</div><div className="l">Revision rate</div></div>
-        <div className="panel kpi"><div className="v">{d.queue.reduce((s, q) => s + q.n, 0)}</div><div className="l">Pending editorial queue</div></div>
-      </div>
-      <Suspense fallback={<Loading />}>
-        <Charts data={d} />
-      </Suspense>
-      {!d.articlesByDay.length && !d.pointsDist.length && <Empty msg="Not enough data for charts yet — submit articles and award points to populate this dashboard." />}
+      {noData ? (
+        <Empty tall icon={icons.chart} title="No numbers yet" msg="Charts come alive as soon as stories move through review and points are awarded. Everything here is computed from stored records — nothing is simulated." />
+      ) : (
+        <>
+          <div className="kpis">
+            <div className="panel kpi"><div className="v">{d.avgReviewDays != null ? d.avgReviewDays.toFixed(1) + "d" : "–"}</div><div className="l">Avg review time</div></div>
+            <div className="panel kpi"><div className="v">{(d.revisionRate * 100).toFixed(0)}%</div><div className="l">Revision rate</div></div>
+            <div className="panel kpi"><div className="v">{d.queue.reduce((s, q) => s + q.n, 0)}</div><div className="l">Pending editorial queue</div></div>
+          </div>
+          <Suspense fallback={<Loading />}>
+            <Charts data={d} />
+          </Suspense>
+        </>
+      )}
     </div>
   );
 }

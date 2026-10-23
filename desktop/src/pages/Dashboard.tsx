@@ -17,7 +17,6 @@ export function Dashboard() {
 
   const committeeCount = coms.data?.length ?? 0;
   const isFresh = !coms.loading && committeeCount === 0;
-  const isReviewer = !!me && ["coordinator", "admin"].includes(me.role);
 
   return (
     <div>
@@ -37,18 +36,20 @@ export function Dashboard() {
 
       {isFresh && <SetupPanel hasCommittees={false} />}
 
-      <motion.div className="kpis" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }} initial="hidden" animate="show">
-        {[
-          { ico: icons.bank, cls: "", v: coms.data?.length ?? "–", l: "Committees tracked", delay: 0 },
-          { ico: icons.doc, cls: "v", v: queue.data ? queue.data.length : isReviewer ? "…" : "—", l: "Articles awaiting review", delay: 0.08 },
-          { ico: icons.bolt, cls: "g", v: radar.data?.movers.length ?? "–", l: "Delegates active (24h)", delay: 0.16 },
-        ].map((k, i) => (
-          <motion.div key={i} variants={{ hidden: { opacity: 0, y: 18, scale: 0.97 }, show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }} className="panel kpi">
-            <div className="kpi-top"><div className={`kpi-ico ${k.cls}`}>{k.ico}</div></div>
-            <div className="v">{k.v}</div><div className="l">{k.l}</div>
-          </motion.div>
-        ))}
-      </motion.div>
+      {!isFresh && (
+        <motion.div className="kpis" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }} initial="hidden" animate="show">
+          {[
+            { ico: icons.bank, cls: "", v: coms.data?.length ?? 0, l: "Committees tracked", delay: 0 },
+            { ico: icons.doc, cls: "v", v: queue.data ? queue.data.length : "…", l: "Articles awaiting review", delay: 0.08 },
+            { ico: icons.bolt, cls: "g", v: radar.data?.movers.length ?? 0, l: "Delegates active (24h)", delay: 0.16 },
+          ].map((k, i) => (
+            <motion.div key={i} variants={{ hidden: { opacity: 0, y: 18, scale: 0.97 }, show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } }} className="panel kpi">
+              <div className="kpi-top"><div className={`kpi-ico ${k.cls}`}>{k.ico}</div></div>
+              <div className="v">{k.v}</div><div className="l">{k.l}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
       {!isFresh && (
         <motion.div className="panel" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>

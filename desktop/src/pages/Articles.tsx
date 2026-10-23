@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { apiFetch } from "../api";
 import { useFetch, Loading, Err, Empty, useMe, time_fmt } from "../ui";
+import { icons } from "../icons";
 
 export function Articles() {
   const [q, setQ] = useState(""); const [status, setStatus] = useState("");
@@ -32,21 +33,27 @@ export function Articles() {
       {list.error && <Err msg={list.error} onRetry={list.retry} />}
       {!list.data?.items.length && !list.loading && !list.error && (
         <Empty
+          tall
+          icon={icons.doc}
           title="No stories here yet"
-          msg="Write the first dispatch — it autosaves as you type, then goes to a coordinator for review."
+          msg="Write the first dispatch — it autosaves as you type, then goes to a coordinator for review before it hits the front page."
           action={{ label: "Write the first story", to: "/articles/new" }}
         />
       )}
-      <div className="tablewrap">
-      <table><thead><tr><th>Story</th><th>Status</th><th>Author</th><th>Updated</th></tr></thead>
-        <tbody>{list.data?.items.map((a) => (
-          <tr key={a.id}><td><Link to={`/articles/${a.id}`} style={{ fontWeight: 600, color: "inherit" }}>{a.title}</Link> <span className="muted">v{a.version}</span></td>
-            <td><span className={`pill st-${a.status}`}>{a.status.replace(/_/g, " ")}</span></td><td>{a.authorName}</td><td className="muted">{time_fmt(a.updatedAt)}</td></tr>
-        ))}</tbody></table>
-      </div>
-      <p className="muted">
-        {list.data?.total ?? 0} {list.data?.total === 1 ? "article" : "articles"}
-      </p>
+      {!!list.data?.items.length && (
+        <>
+          <div className="tablewrap">
+            <table><thead><tr><th>Story</th><th>Status</th><th>Author</th><th>Updated</th></tr></thead>
+              <tbody>{list.data.items.map((a) => (
+                <tr key={a.id}><td><Link to={`/articles/${a.id}`} style={{ fontWeight: 600, color: "inherit" }}>{a.title}</Link> <span className="muted">v{a.version}</span></td>
+                  <td><span className={`pill st-${a.status}`}>{a.status.replace(/_/g, " ")}</span></td><td>{a.authorName}</td><td className="muted">{time_fmt(a.updatedAt)}</td></tr>
+              ))}</tbody></table>
+          </div>
+          <p className="muted" style={{ marginTop: 10 }}>
+            {list.data.total} {list.data.total === 1 ? "article" : "articles"}
+          </p>
+        </>
+      )}
       </div>
     </div>
   );

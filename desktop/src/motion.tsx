@@ -71,12 +71,12 @@ export const Orb = ({ style }: { style?: React.CSSProperties }) => (
     aria-hidden
     style={{
       position: "absolute", borderRadius: "50%",
-      background: "radial-gradient(circle at 35% 35%, rgba(56,225,255,0.45), rgba(167,139,250,0.35) 50%, transparent 80%)",
-      filter: "blur(48px)", opacity: 0.9,
+      background: "radial-gradient(circle at 35% 35%, rgba(56,225,255,0.16), rgba(167,139,250,0.12) 50%, transparent 80%)",
+      filter: "blur(60px)", opacity: 0.7,
       ...style,
     }}
-    animate={{ scale: [1, 1.14, 1], x: [0, 12, 0], y: [0, -10, 0] }}
-    transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+    animate={{ scale: [1, 1.1, 1], x: [0, 10, 0], y: [0, -8, 0] }}
+    transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
   />
 );
 

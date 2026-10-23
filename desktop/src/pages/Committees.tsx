@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { apiFetch } from "../api";
 import { useFetch, Loading, Err, Empty, useMe, time_fmt } from "../ui";
 import { icons } from "../icons";
 
@@ -12,6 +14,21 @@ const cardVariants: Variants = {
 export function Committees() {
   const { me } = useMe();
   const list = useFetch<Array<{ id: string; name: string; abbreviation: string; status: string; progressPercent: number; sessionCount: number }>>("/committees");
+  const [form, setForm] = useState({ name: "", abbreviation: "", venue: "" });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function createFirst(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(""); setBusy(true);
+    try {
+      await apiFetch("/committees", { method: "POST", body: JSON.stringify(form) });
+      location.reload();
+    } catch (ex) {
+      setErr(String((ex as Error).message)); setBusy(false);
+    }
+  }
+
   return (
     <div>
       <motion.div className="pagehead" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
@@ -21,29 +38,72 @@ export function Committees() {
           <p className="sub">Session status, agenda progress and press coverage — updated from stored records, never mock data.</p>
         </div>
       </motion.div>
-      <motion.div className="com-grid" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }} initial="hidden" animate="show">
+      <motion.div variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }} initial="hidden" animate="show">
         {list.loading && <Loading />}
         {list.error && <Err msg={list.error} onRetry={list.retry} />}
         {!list.data?.length && !list.loading && !list.error && (
-          <Empty
-            title="No committees yet"
-            msg="Committees are the working groups of the summit — each one tracks its own agenda, sessions and progress."
-            action={me?.role === "admin" ? { label: "Create a committee", to: "/admin" } : undefined}
-          />
+          <div>
+            <Empty
+              tall
+              icon={icons.bank}
+              title="No committees yet"
+              msg={
+                me?.role === "admin"
+                  ? "Set up the first working group of your summit — name it, give it an abbreviation and a venue. Sessions, agenda and progress all hang off it."
+                  : "Committees are set up by the summit admin. The moment one exists, its live status, sessions and agenda appear here."
+              }
+            />
+            {me?.role === "admin" && (
+              <form className="setup-form" onSubmit={createFirst} style={{ marginTop: 16 }}>
+                <div className="toolbar" style={{ marginBottom: 0 }}>
+                  <input
+                    placeholder="Committee name, e.g. United Nations Security Council"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    aria-label="Committee name"
+                    required
+                  />
+                  <input
+                    placeholder="Abbreviation, e.g. UNSC"
+                    value={form.abbreviation}
+                    onChange={(e) => setForm({ ...form, abbreviation: e.target.value })}
+                    aria-label="Abbreviation"
+                    required
+                    style={{ maxWidth: 180 }}
+                  />
+                  <input
+                    placeholder="Venue, e.g. Hall A"
+                    value={form.venue}
+                    onChange={(e) => setForm({ ...form, venue: e.target.value })}
+                    aria-label="Venue"
+                    style={{ maxWidth: 180 }}
+                  />
+                  <button className="btn" type="submit" disabled={busy}>
+                    {busy ? "Creating…" : "Create committee"}
+                  </button>
+                </div>
+                {err && <p className="bad" role="alert" style={{ margin: "10px 0 0" }}>{err}</p>}
+              </form>
+            )}
+          </div>
         )}
-        {list.data?.map((c) => (
-          <motion.div key={c.id} variants={cardVariants}>
-            <Link to={`/committees/${c.id}`} className="panel com-card">
-              <motion.div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} whileHover={{ x: 2 }}>
-                <span className="abbr">{c.abbreviation}</span>
-                <span className={`pill st-${c.status}`}>{c.status.replace(/_/g, " ")}</span>
+        {list.data?.length ? (
+          <div className="com-grid">
+            {list.data.map((c) => (
+              <motion.div key={c.id} variants={cardVariants}>
+                <Link to={`/committees/${c.id}`} className="panel com-card">
+                  <motion.div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} whileHover={{ x: 2 }}>
+                    <span className="abbr">{c.abbreviation}</span>
+                    <span className={`pill st-${c.status}`}>{c.status.replace(/_/g, " ")}</span>
+                  </motion.div>
+                  <div className="nm">{c.name}</div>
+                  <div className="muted" style={{ fontSize: 13 }}>{c.sessionCount} sessions · {c.progressPercent}%</div>
+                  <div className="progress"><motion.div initial={{ width: 0 }} animate={{ width: `${c.progressPercent}%` }} transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }} /></div>
+                </Link>
               </motion.div>
-              <div className="nm">{c.name}</div>
-              <div className="muted" style={{ fontSize: 13 }}>{c.sessionCount} sessions · {c.progressPercent}%</div>
-              <div className="progress"><motion.div initial={{ width: 0 }} animate={{ width: `${c.progressPercent}%` }} transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }} /></div>
-            </Link>
-          </motion.div>
-        ))}
+            ))}
+          </div>
+        ) : null}
       </motion.div>
     </div>
   );
