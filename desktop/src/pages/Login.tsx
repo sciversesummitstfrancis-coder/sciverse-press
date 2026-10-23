@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { apiFetch, setToken, getApiBase, setApiBase, IS_TAURI } from "../api";
 import { useMe } from "../ui";
-import { MoleculeField } from "../MoleculeField";
+import { InteractiveAuth } from "../InteractiveAuth";
 
 /** The demo accounts seeded by the backend. All use the same password. */
 const DEMO_ACCOUNTS = [
@@ -43,8 +43,7 @@ export function Login() {
   }
 
   return (
-    <div className="auth-wrap">
-      <MoleculeField />
+    <InteractiveAuth>
       <div className="panel auth-card">
         <div className="auth-brand">
           <div className="brand">
@@ -160,7 +159,7 @@ export function Login() {
           </div>
         </div>
       </div>
-    </div>
+    </InteractiveAuth>
   );
 }
 
@@ -200,8 +199,7 @@ export function Register() {
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [k]: e.target.value });
 
   return (
-    <div className="auth-wrap">
-      <MoleculeField />
+    <InteractiveAuth>
       <div className="panel auth-card">
         <div className="auth-brand">
           <div className="brand">
@@ -302,6 +300,6 @@ export function Register() {
           </p>
         </div>
       </div>
-    </div>
+    </InteractiveAuth>
   );
 }

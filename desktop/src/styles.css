@@ -354,16 +354,17 @@ tr.top1 .rank, tr.top2 .rank, tr.top3 .rank { color: var(--gold); }
 .auth-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
 .auth-wrap { position: relative; overflow: hidden; }
 
-/* Floating benzene rings */
-.molfield { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
-.auth-card { position: relative; z-index: 1; }
-.benzene { color: var(--accent); filter: drop-shadow(0 0 14px rgba(56,225,255,0.35)); will-change: transform; }
-.benzene.b { color: var(--violet); filter: drop-shadow(0 0 14px rgba(167,139,250,0.4)); }
-body.low-power .benzene { filter: drop-shadow(0 0 8px rgba(56,225,255,0.2)); }
-@media (max-width: 700px) {
-  body:not(.low-power) .benzene { filter: drop-shadow(0 0 10px rgba(56,225,255,0.28)); }
-  body.low-power .benzene { filter: none; }
+/* Cursor light + card tilt (see InteractiveAuth) */
+.auth-glow {
+  position: absolute; width: 620px; height: 620px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(56,225,255,0.11), rgba(167,139,250,0.07) 42%, transparent 72%);
+  transform: translate(-50%, -50%);
+  pointer-events: none; z-index: 0;
+  will-change: left, top;
 }
+.auth-tilt { position: relative; z-index: 1; }
+/* The gradient is already soft — no heavy blur filter, so low-power machines
+   pay almost nothing for the idle state. */
 .auth-card { width: min(880px, 100%); display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; padding: 0; }
 .auth-brand { background: linear-gradient(150deg, rgba(56,225,255,0.16), rgba(167,139,250,0.16)), var(--panel-2); padding: 44px 38px; display: flex; flex-direction: column; justify-content: center; gap: 14px; border-right: 1px solid var(--line-soft); }
 .auth-brand h1 { font-size: 34px; line-height: 1.08; }
