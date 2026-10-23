@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { apiFetch, setToken, getApiBase, setApiBase, IS_TAURI } from "../api";
 import { useMe } from "../ui";
+import { MoleculeField } from "../MoleculeField";
 
 /** The demo accounts seeded by the backend. All use the same password. */
 const DEMO_ACCOUNTS = [
@@ -43,6 +44,7 @@ export function Login() {
 
   return (
     <div className="auth-wrap">
+      <MoleculeField />
       <div className="panel auth-card">
         <div className="auth-brand">
           <div className="brand">
@@ -199,6 +201,7 @@ export function Register() {
 
   return (
     <div className="auth-wrap">
+      <MoleculeField />
       <div className="panel auth-card">
         <div className="auth-brand">
           <div className="brand">
