@@ -360,6 +360,47 @@ tr.top1 .rank, tr.top2 .rank, tr.top3 .rank { color: var(--gold); }
 .auth-form { padding: 44px 38px; }
 @media (max-width: 760px) { .auth-card { grid-template-columns: 1fr; } .auth-brand { border-right: none; border-bottom: 1px solid var(--line-soft); padding: 30px; } }
 
+/* Password field with an inline show/hide control */
+.passwrap { position: relative; }
+.passwrap input { padding-right: 62px; }
+.pass-toggle {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  font: 600 12px var(--body); color: var(--muted);
+  background: var(--panel-2); border: 1px solid var(--line-soft);
+  border-radius: 9px; padding: 5px 10px; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.pass-toggle:hover { color: var(--ink); border-color: var(--line); }
+.pass-toggle[aria-pressed="true"] { color: var(--accent); border-color: rgba(56,225,255,0.4); }
+
+/* "Or create an account" divider between the primary and secondary actions */
+.auth-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 18px 0 12px; color: var(--faint);
+  font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+}
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+
+/* Role picker on the create-account form */
+.rolegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+.roleopt {
+  display: grid; gap: 1px; text-align: left;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; cursor: pointer; color: var(--ink); font: inherit;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.roleopt b { font-size: 13.5px; }
+.roleopt .muted { font-size: 11.5px; line-height: 1.35; }
+.roleopt:hover { border-color: var(--line); background: var(--panel-2); }
+.roleopt.sel {
+  border-color: rgba(56,225,255,0.55);
+  background: linear-gradient(135deg, rgba(56,225,255,0.14), rgba(167,139,250,0.12));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 0 3px rgba(56,225,255,0.12);
+}
+@media (max-width: 520px) { .rolegrid { grid-template-columns: 1fr; } }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+button:disabled:hover { transform: none; filter: none; }
+
 /* ============ Shell responsive / motion ============ */
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
