@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "../motionBridge";
 import { Link } from "react-router-dom";
 import { apiFetch } from "../api";
 import { useFetch, Loading, Err, Empty, useMe, time_fmt } from "../ui";

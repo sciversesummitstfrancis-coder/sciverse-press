@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "./motionBridge";
 import { apiFetch } from "./api";
 import { time_fmt } from "./ui";
 

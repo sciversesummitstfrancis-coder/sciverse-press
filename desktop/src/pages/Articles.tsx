@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "../motionBridge";
 import { apiFetch } from "../api";
 import { useFetch, Loading, Err, Empty, useMe, time_fmt } from "../ui";
 import { icons } from "../icons";

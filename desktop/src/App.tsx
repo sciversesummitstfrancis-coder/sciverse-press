@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, NavLink, useParams, useLocation, Navigate, useMatch } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "./motionBridge";
 import { AuthProvider, useMe } from "./ui";
 import { apiFetch } from "./api";
 import { icons } from "./icons";

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "./motionBridge";
 import { apiFetch } from "./api";
 
 export const PageTransition = ({ children }: { children: ReactNode }) => (

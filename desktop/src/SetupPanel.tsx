@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "./motionBridge";
 import { Link } from "react-router-dom";
 import { apiFetch } from "./api";
 import { useMe } from "./ui";

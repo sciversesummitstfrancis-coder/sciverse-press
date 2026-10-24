@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "../motionBridge";
 import { Link } from "react-router-dom";
 import { apiFetch } from "../api";
 import { useFetch, Loading, Err, Empty, useMe, time_fmt } from "../ui";
 import { icons } from "../icons";
 
-import { type Variants } from "framer-motion";
+import { type Variants } from "../motionBridge";
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 24, scale: 0.96 },
   show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as any } },

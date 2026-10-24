@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "../motionBridge";
 import { Link } from "react-router-dom";
 import { useFetch, Loading, Err, Empty, time_fmt, useMe } from "../ui";
 import { icons } from "../icons";

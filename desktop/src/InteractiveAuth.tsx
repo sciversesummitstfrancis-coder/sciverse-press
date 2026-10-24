@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "./motionBridge";
 
 /**
  * Interactive backdrop + tilt for the auth screens.

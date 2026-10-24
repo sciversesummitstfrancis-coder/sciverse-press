@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "../motionBridge";
 import { Suspense, lazy, useState } from "react";
 import { apiFetch } from "../api";
 import { useFetch, Loading, Err, Empty, useMe } from "../ui";

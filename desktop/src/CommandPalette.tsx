@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "./motionBridge";
 import { apiFetch } from "./api";
 import { icons } from "./icons";
 import { useMe } from "./ui";
@@ -210,7 +210,7 @@ export function CommandPalette() {
               animate={{ opacity: open ? 1 : 0, scale: open ? 1 : 0.97, y: open ? 0 : -12 }}
               exit={{ opacity: 0, scale: 0.97, y: -12 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
               onKeyDown={onKeyDown}
             >
               <input
